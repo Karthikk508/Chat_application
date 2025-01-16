@@ -3,6 +3,7 @@ package org.karthik;
 import java.time.LocalDateTime;
 
 public class Message {
+
     private int messageId;
     private String content;
     private User sender;
@@ -67,8 +68,17 @@ public class Message {
         this.isDeleted = deleted;
     }
 
+    @Override
     public String toString() {
-        int var10000 = this.messageId;
-        return "Message{messageId=" + var10000 + ", content='" + this.content + "', sender=" + String.valueOf(this.sender) + ", receiver=" + String.valueOf(this.receiver) + ", timeStamp=" + String.valueOf(this.timeStamp) + ", isDeleted=" + this.isDeleted + "}";
+        return "Message{" +
+                "messageId=" + messageId +
+                ", content='" + content + '\'' +
+                ", sender=" + sender +
+                ", receiver=" + receiver +
+                ", timeStamp=" + timeStamp +
+                ", isDeleted=" + isDeleted +
+                '}';
     }
+
+
 }

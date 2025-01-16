@@ -6,11 +6,16 @@ import java.util.Scanner;
 
 public class Main {
 
-    private static List<User> list = new ArrayList();
-    private static ChatController controller = new ChatController();
-    private static Scanner scanner;
+    //private static List<User> list = new ArrayList<>();
+    private static final ChatController controller = new ChatController();
+    private static final Scanner scanner;
+
+    static {
+        scanner = new Scanner(System.in);
+    }
 
     public static void main(String[] args) {
+
         registerUsers();
         boolean flag = true;
 
@@ -38,11 +43,11 @@ public class Main {
 
     public static void registerUsers() {
         controller.registerUsers(10, "karthik", "1234");
-        controller.registerUsers(15, "mohan", "6789");
-        controller.registerUsers(11, "ajay", "5678");
-        controller.registerUsers(12, "anitha", "2345");
-        controller.registerUsers(13, "sneha", "3456");
-        controller.registerUsers(14, "arjun", "4567");
+        controller.registerUsers(11, "mohan", "6789");
+        controller.registerUsers(12, "ajay", "5678");
+        controller.registerUsers(13, "anitha", "2345");
+        controller.registerUsers(14, "sneha", "3456");
+        controller.registerUsers(15, "arjun", "4567");
         controller.registerUsers(16, "divya", "7890");
         controller.registerUsers(17, "vivek", "8901");
     }
@@ -60,40 +65,43 @@ public class Main {
         boolean flag = true;
 
         while(flag) {
-            System.out.println("Home :\n1. send message\n2. view chat history\n3. createGroup\n4. send group message\n9. logout");
+            System.out.println("Home :\n1. send message\n2. view chat history\n3. createGroup\n4. send group message\n5. viewGroupMessage\n9. logout");
             int choice = scanner.nextInt();
             switch(choice) {
-                case 1:
-                    sendMessage();
-                    break;
-                case 2:
-                    viewChatHistory();
-                    break;
-                case 3:
-                    createGroup();
-                    break;
-                case 4:
-                    sendGroupMessage();
-                    break;
-                case 5:
-                case 6:
-                case 7:
-                case 8:
-                default:
-                    System.out.println("Invalid option");
-                    break;
-                case 9:
-                    flag = false;
+
+                case 1 -> sendMessage();
+                case 2 -> viewChatHistory();
+                case 3 -> createGroup();
+                case 4 -> sendGroupMessage();
+                case 5 -> viewGroupMessage();
+
+                case 9 -> flag = false;
+                default -> System.out.println("Invalid option");
             }
         }
+
+    }
+
+    private static void viewGroupMessage() {
+
+        System.out.println("Enter the groupId : ");
+        int groupId = scanner.nextInt();
+        controller.viewGroupChats(groupId);
 
     }
 
     private static void sendGroupMessage() {
         System.out.println("Enter the group id : ");
         int groupId = scanner.nextInt();
+        if(!(controller.validateGroup(groupId))){
+            System.out.println("Group doesn't exist ");
+            return;
+        }
+        //System.out.println("boom");
+        System.out.print("Enter the message that you want to send : ");
+        scanner.nextLine();
         String message = scanner.nextLine();
-        controller.sendGroupMessage(groupId, message);
+        controller.sendGroupMessage(groupId,message);
     }
 
     private static void sendMessage() {
@@ -112,7 +120,7 @@ public class Main {
     }
 
     private static void createGroup() {
-        List<User> listOfUsers = new ArrayList();
+        List<User> listOfUsers = new ArrayList<>();
         scanner.nextLine();
         System.out.print("Enter the group name : ");
         String groupName = scanner.nextLine();
@@ -153,8 +161,9 @@ public class Main {
         System.out.println("Enter the user id of the user to create group :");
         int id = scanner.nextInt();
         if (id >= 10 && id <= 17) {
-            if (!listOfUsers.contains(controller.getUserByUserId(id))) {
+            if (!(listOfUsers.contains(controller.getUserByUserId(id)))) {
                 listOfUsers.add(controller.getUserByUserId(id));
+                System.out.println("USer added ::: ");
             } else {
                 System.out.println("User already added ::: ");
             }
@@ -162,10 +171,6 @@ public class Main {
             System.out.println("User not found !!!!!!!!!!!");
         }
 
-    }
-
-    static {
-        scanner = new Scanner(System.in);
     }
 }
 

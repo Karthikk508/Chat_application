@@ -14,10 +14,23 @@ public class ChatController {
     private Map<Integer, Group> groups = new HashMap();
     private User currentUser;
     private int nextMessageId = 0;
-    private int nextGroupId = 1;
+    private int nextGroupId = 0;
 
     public User getCurrentUser() {
         return this.currentUser;
+    }
+
+    public User getUserByUserName(String userName) {
+        return usersByUserName.get(userName);
+    }
+
+    public User getUserByUserId(int id) {
+        return usersById.get(id);
+    }
+
+    public boolean validateGroup(int groupId) {
+        Group group = groups.get(groupId);
+        return group != null;
     }
 
     public void registerUsers(int userId, String userName, String password) {
@@ -47,14 +60,6 @@ public class ChatController {
         receiver.setReceivedMessages(message1);
     }
 
-    public User getUserByUserName(String userName) {
-        return (User)this.usersByUserName.get(userName);
-    }
-
-    public User getUserByUserId(int id) {
-        return (User)this.usersById.get(id);
-    }
-
     public void viewChatHistory(int id) {
         User user = this.getUserByUserId(id);
         System.out.println(user.getUserName());
@@ -79,13 +84,51 @@ public class ChatController {
     }
 
     public void createGroup(String groupName, List<User> listOfUsers) {
-        Group group = new Group(++this.nextGroupId, groupName, listOfUsers);
-        this.groups.put(this.nextGroupId, group);
+        Group group = new Group(++nextGroupId, groupName, listOfUsers);
+        groups.put(nextGroupId, group);
+        currentUser.setGroups(group);
+
+        for(User user : listOfUsers){
+            user.setGroups(group);
+        }
         System.out.println("Group created sucessfully !!!! ");
     }
 
-    public void sendGroupMessage(int groupId, String message) {
-        Group group = (Group)this.groups.get(groupId);
-        group.setMessages(new Message(++this.nextMessageId, message, this.currentUser, (User)null, LocalDateTime.now(), false));
+    public void sendGroupMessage(int groupId,String message) {
+
+        Group group = groups.get(groupId);
+        if(group == null) {
+            System.out.println("Group doesn't exist : !!!!!!");
+            return;
+        }
+        group.setMessages(new Message(++nextMessageId, message,currentUser, (User)null, LocalDateTime.now(), false));
+    }
+
+    public void viewGroupChats(int groupId){
+
+        Group group1 = currentUser.getGroups().stream().filter((group -> group.getGroupId() == groupId)).toList().getFirst();
+
+        if(group1 == null){
+            System.out.println("Group id doesn't exist");
+        }
+        else{
+
+            List<Message> list =  group1.getMessages();
+            list.sort((Message m1,Message m2)-> m1.getTimeStamp().compareTo(m2.getTimeStamp()));
+
+            System.out.println("Group name : " + group1.getGroupName());
+
+            for(Message m : group1.getMessages()){
+
+                if(m.getSender().equals(currentUser)){
+                    System.out.println("Time : " + m.getTimeStamp() + "       You : " + m.getContent());
+                }
+                else {
+                    System.out.println("Time : " + m.getTimeStamp() + "       " +m.getSender().getUserName() + " : " + m.getContent());
+                }
+            }
+        }
+
+
     }
 }

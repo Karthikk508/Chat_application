@@ -59,6 +59,10 @@ public class User {
         this.groups = groups;
     }
 
+    public void setGroups(Group group) {
+       groups.add(group);
+    }
+
     public User(int userId, String userName, String password) {
         this.userId = userId;
         this.userName = userName;
