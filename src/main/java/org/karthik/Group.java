@@ -33,7 +33,11 @@ public class Group {
     }
 
     public List<User> getUsers() {
-        return this.users;
+        return users;
+    }
+
+    public void addUsers(User user){
+        users.add(user);
     }
 
     public void setUsers(List<User> users) {

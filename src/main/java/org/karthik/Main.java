@@ -20,7 +20,7 @@ public class Main {
         boolean flag = true;
 
         while(flag) {
-            System.out.println("1. Login\n2. Exit\n");
+            System.out.println("1. Login\n2. Exit\nChoose an option : ");
             int choice = scanner.nextInt();
             switch(choice) {
                 case 1:
@@ -65,7 +65,7 @@ public class Main {
         boolean flag = true;
 
         while(flag) {
-            System.out.println("Home :\n1. send message\n2. view chat history\n3. createGroup\n4. send group message\n5. viewGroupMessage\n9. logout");
+            System.out.println("Home :\n1. send message\n2. view chat history\n3. createGroup\n4. send group message\n5. viewGroupMessage\n6. deleteMessage\n7. viewAllChats\n8. addUserToGroup\n9. logout\nChoose an option : ");
             int choice = scanner.nextInt();
             switch(choice) {
 
@@ -74,11 +74,50 @@ public class Main {
                 case 3 -> createGroup();
                 case 4 -> sendGroupMessage();
                 case 5 -> viewGroupMessage();
+                case 6 -> deleteMessage();
+                case 7 -> viewAllChats();
+                case 8 -> addUserToGroup();
 
                 case 9 -> flag = false;
                 default -> System.out.println("Invalid option");
             }
         }
+
+    }
+
+    private static void addUserToGroup() {
+
+        System.out.print("Enter the group Id : ");
+        int groupId = scanner.nextInt();
+        if (!controller.validateGroup(groupId)) {
+            System.out.println("Invalid groupId !!!");
+            return;
+        }
+        System.out.print("Enter the userId You want to add : ");
+        int userId = scanner.nextInt();
+        if (!validateUser(userId)) {
+            System.out.println("Invalid userId !!!");
+            return;
+        }
+        controller.addUserToGroup(groupId, controller.getUserByUserId(userId));
+
+    }
+
+    private static void viewAllChats() {
+        controller.viewAllChats();
+    }
+
+    private static void deleteMessage() {
+
+        System.out.print("Enter the receiver id whom want to delete the message : ");
+        int id = scanner.nextInt();
+
+        System.out.println("Chat history : ");
+        controller.viewChatHistory(id);
+
+        System.out.print("Enter the message id , that you want to delete : ");
+        int messageId = scanner.nextInt();
+        controller.deleteMessage(messageId);
 
     }
 
@@ -127,7 +166,7 @@ public class Main {
         System.out.println();
         System.out.println("Enter the user id of the user to create group :");
         int id = scanner.nextInt();
-        if (id >= 10 && id <= 17) {
+        if (validateUser(id)) {
             if (id != controller.getCurrentUser().getUserId()) {
                 listOfUsers.add(controller.getUserByUserId(id));
             } else {
@@ -160,7 +199,7 @@ public class Main {
     private static void addUsers(List<User> listOfUsers) {
         System.out.println("Enter the user id of the user to create group :");
         int id = scanner.nextInt();
-        if (id >= 10 && id <= 17) {
+        if (validateUser(id)) {
             if (!(listOfUsers.contains(controller.getUserByUserId(id)))) {
                 listOfUsers.add(controller.getUserByUserId(id));
                 System.out.println("USer added ::: ");
@@ -171,6 +210,10 @@ public class Main {
             System.out.println("User not found !!!!!!!!!!!");
         }
 
+    }
+
+    private static boolean validateUser(int userId){
+        return userId >= 10 && userId <= 17;
     }
 }
 

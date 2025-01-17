@@ -1,17 +1,16 @@
 package org.karthik;
 
-import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class ChatController {
-    private Map<Integer, User> usersById = new HashMap();
-    private Map<String, User> usersByUserName = new HashMap();
-    private Map<Integer, Group> groups = new HashMap();
+
+    private Map<Integer, User> usersById = new HashMap<>();
+    private Map<String, User> usersByUserName = new HashMap<>();
+    private Map<Integer, Group> groups = new HashMap<>();
     private User currentUser;
     private int nextMessageId = 0;
     private int nextGroupId = 0;
@@ -54,32 +53,38 @@ public class ChatController {
     }
 
     public void sendMessage(int id, String message) {
-        User receiver = (User)this.usersById.get(id);
+        User receiver = usersById.get(id);
         Message message1 = new Message(++this.nextMessageId, message, this.currentUser, receiver, LocalDateTime.now(), false);
-        this.currentUser.setSentMessages(message1);
+        currentUser.setSentMessages(message1);
         receiver.setReceivedMessages(message1);
     }
 
     public void viewChatHistory(int id) {
-        User user = this.getUserByUserId(id);
+        User user = getUserByUserId(id);
         System.out.println(user.getUserName());
-        List<Message> list = new ArrayList(this.currentUser.getReceivedMessages().stream().filter((m1) -> {
-            return m1.getSender().equals(user);
-        }).toList());
-        list.addAll(this.currentUser.getSentMessages().stream().filter((mx) -> {
-            return mx.getReceiver().equals(user);
-        }).toList());
-        list.sort((m1, m2) -> {
-            return m1.getTimeStamp().compareTo(m2.getTimeStamp());
-        });
-        Iterator var4 = list.iterator();
+        List<Message> list = new ArrayList<>(currentUser.getReceivedMessages().stream().filter((m1) -> {return m1.getSender().equals(user);}).toList());
+        list.addAll(currentUser.getSentMessages().stream().filter((m1) -> { return m1.getReceiver().equals(user);}).toList());
+        list.sort((m1, m2) -> { return m1.getTimeStamp().compareTo(m2.getTimeStamp());});
 
-        while(var4.hasNext()) {
-            Message m = (Message)var4.next();
-            PrintStream var10000 = System.out;
-            String var10001 = String.valueOf(m.getTimeStamp());
-            var10000.println(var10001 + "        " + m.getContent());
+        for(Message m : list){
+            if(!m.isDeleted()){
+                System.out.println("["+m.getMessageId()+"]" + " " + (m.getSender().equals(currentUser) ? "You : " : m.getSender().getUserName() + " : ") + m.getContent());
+            }
+            else {
+                System.out.println("["+m.getMessageId()+"]" + " " + (m.getSender().equals(currentUser) ? "You : " : m.getSender().getUserName() + " : ") + "This message was deleted");
+            }
+
         }
+
+    }
+
+    public List<Message> getChatHistory(int id) {
+
+        User user = getUserByUserId(id);
+        List<Message> list = new ArrayList<>(currentUser.getReceivedMessages().stream().filter((m1) -> {return m1.getSender().equals(user);}).toList());
+        list.addAll(currentUser.getSentMessages().stream().filter((m1) -> { return m1.getReceiver().equals(user);}).toList());
+        list.sort((m1, m2) -> { return m1.getTimeStamp().compareTo(m2.getTimeStamp());});
+        return list;
 
     }
 
@@ -130,5 +135,29 @@ public class ChatController {
         }
 
 
+    }
+
+    public void addUserToGroup(int groupId,User user){
+
+        Group group = groups.get(groupId);
+        group.addUsers(user);
+        user.setGroups(group);
+        System.out.println(user.getUserName() + " added successfully to " + group.getGroupName());
+    }
+
+    public void deleteMessage(int messageId) {
+        Message message = currentUser.getSentMessages().stream().filter((Message m)-> m.getMessageId() == messageId).toList().getFirst();
+        message.setDeleted(true);
+    }
+
+    public void viewAllChats() {
+
+        for(User user :  usersById.values()){
+            if(!user.equals(currentUser)){
+                if(!(getChatHistory(user.getUserId()).isEmpty())){
+                    viewChatHistory(user.getUserId());
+                }
+            }
+        }
     }
 }
